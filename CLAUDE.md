@@ -99,6 +99,12 @@ This project uses a **simplified Gitflow approach**:
 - `task/refactor-validation`
 - `hotfix/critical-security-patch`
 
+### Commit Message Guidelines
+
+- Write clear, descriptive commit messages
+- Do not include references to Claude Code or AI assistance
+- Focus on what was implemented and why
+
 ## Development Planning
 
 Reference the `DEVELOPMENT_PLAN.md` file for the current OpenWeatherMap API integration roadmap. This file contains:
