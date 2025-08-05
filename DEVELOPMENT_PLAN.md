@@ -22,13 +22,11 @@ src/
 ├── config/
 │   └── environment.ts    # API key and config management
 ├── services/
-│   └── weather.ts        # OpenWeatherMap API client
-├── types/
-│   └── weather.ts        # TypeScript interfaces for API responses
+│   ├── weather.ts        # OpenWeatherMap API client
+│   ├── weather.types.ts  # TypeScript interfaces for API responses (colocated)
+│   └── weather.test.ts   # Weather service tests
 └── tools/
-    ├── current-weather.ts    # Current & forecast weather tool
-    ├── weather-overview.ts   # Human-readable weather summary
-    └── historical-weather.ts # Historical weather data tool
+    └── current-weather.ts    # Current & forecast weather tool
 ```
 
 ### Tools to Implement
@@ -43,54 +41,33 @@ src/
   - `exclude` (optional): Skip data blocks
 - **Returns**: Current weather, hourly (48h), daily (8d), alerts
 
-#### 2. `get-weather-overview`
-
-- **Endpoint**: `/data/3.0/onecall/overview`
-- **Purpose**: Human-readable weather summary
-- **Parameters**:
-  - `location` (string): City name or "lat,lon"
-  - `units` (optional): metric/imperial/standard
-- **Returns**: Natural language weather description
-
-#### 3. `get-historical-weather`
-
-- **Endpoint**: `/data/3.0/onecall/timemachine`
-- **Purpose**: Historical weather data
-- **Parameters**:
-  - `location` (string): City name or "lat,lon"
-  - `date` (string): Date in YYYY-MM-DD format
-  - `units` (optional): metric/imperial/standard
-- **Returns**: Historical weather for specified date
-
 ## Implementation Plan
 
-### Phase 1: Foundation 🚧
+### Phase 1: Foundation ✅
 
-- [ ] Create directory structure
-- [ ] Set up environment configuration
-- [ ] Create TypeScript types for API responses
-- [ ] Implement weather service client
+- [x] Create directory structure
+- [x] Set up environment configuration
+- [x] Create TypeScript interfaces for API responses (colocated in services/)
+- [x] Implement weather service client with geocoding support
 
 ### Phase 2: Core Tools 🔄
 
 - [ ] Implement `get-current-weather` tool
-- [ ] Implement `get-weather-overview` tool
 - [ ] Update main server to register new tools
-- [ ] Add geocoding support for city names
+- [x] Add geocoding support for city names (completed in WeatherService)
 
 ### Phase 3: Advanced Features 🔄
 
-- [ ] Implement `get-historical-weather` tool
 - [ ] Add comprehensive error handling
 - [ ] Add input validation
 - [ ] Add rate limiting protection
 
 ### Phase 4: Testing & Polish 🔄
 
-- [ ] Add unit tests for weather service
+- [x] Add unit tests for weather service
 - [ ] Add integration tests for tools
 - [ ] Update documentation
-- [ ] Test with various locations and scenarios
+- [x] Test with various locations and scenarios (tested with San Miniato)
 
 ## Technical Specifications
 
@@ -127,6 +104,10 @@ Users will need to:
 - Maintaining learning-focused approach with JSDoc comments
 - All tools will include proper input schema validation
 - Error messages will be user-friendly and actionable
+- **Weather overview tool removed**: Requires paid OpenWeatherMap subscription, not available in free tier
+- **Historical weather tool removed**: Requires paid OpenWeatherMap subscription, not available in free tier
+- **Types colocated**: Weather types moved from `src/types/weather.ts` to `src/services/weather.types.ts` for better organization
+- **Free tier limitations**: Only current weather, forecasts, and geocoding are available with free API keys
 
 ---
 

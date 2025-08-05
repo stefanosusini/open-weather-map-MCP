@@ -5,13 +5,11 @@
 
 import {
   OneCallResponse,
-  WeatherOverviewResponse,
-  HistoricalWeatherResponse,
   GeocodingResponse,
   WeatherUnits,
   WeatherExclude,
   Coordinates
-} from '../types/weather.js';
+} from './weather.types.js';
 
 export class WeatherService {
   private readonly apiKey: string;
@@ -100,59 +98,5 @@ export class WeatherService {
     return response.json() as Promise<OneCallResponse>;
   }
 
-  /**
-   * Get human-readable weather overview using One Call API 3.0
-   * @param coordinates - Location coordinates
-   * @param units - Temperature units (default: metric)
-   * @returns Promise with weather overview
-   */
-  async getWeatherOverview(
-    coordinates: Coordinates,
-    units: WeatherUnits = 'metric'
-  ): Promise<WeatherOverviewResponse> {
-    const url = new URL(`${this.baseUrl}/data/3.0/onecall/overview`);
-    url.searchParams.set('lat', coordinates.lat.toString());
-    url.searchParams.set('lon', coordinates.lon.toString());
-    url.searchParams.set('appid', this.apiKey);
-    url.searchParams.set('units', units);
 
-    const response = await fetch(url.toString());
-    
-    if (!response.ok) {
-      throw new Error(`Weather overview API request failed: ${response.status} ${response.statusText}`);
-    }
-
-    return response.json() as Promise<WeatherOverviewResponse>;
-  }
-
-  /**
-   * Get historical weather data using One Call API 3.0 Time Machine
-   * @param coordinates - Location coordinates
-   * @param date - Date in YYYY-MM-DD format
-   * @param units - Temperature units (default: metric)
-   * @returns Promise with historical weather data
-   */
-  async getHistoricalWeather(
-    coordinates: Coordinates,
-    date: string,
-    units: WeatherUnits = 'metric'
-  ): Promise<HistoricalWeatherResponse> {
-    // Convert date to Unix timestamp
-    const timestamp = Math.floor(new Date(date).getTime() / 1000);
-    
-    const url = new URL(`${this.baseUrl}/data/3.0/onecall/timemachine`);
-    url.searchParams.set('lat', coordinates.lat.toString());
-    url.searchParams.set('lon', coordinates.lon.toString());
-    url.searchParams.set('dt', timestamp.toString());
-    url.searchParams.set('appid', this.apiKey);
-    url.searchParams.set('units', units);
-
-    const response = await fetch(url.toString());
-    
-    if (!response.ok) {
-      throw new Error(`Historical weather API request failed: ${response.status} ${response.statusText}`);
-    }
-
-    return response.json() as Promise<HistoricalWeatherResponse>;
-  }
 }

@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { WeatherService } from './weather.js';
-import type { GeocodingResponse, OneCallResponse, WeatherOverviewResponse, HistoricalWeatherResponse } from '../types/weather.js';
+import type { GeocodingResponse, OneCallResponse } from './weather.types.js';
 
 // Mock fetch globally
 const mockFetch = vi.fn();
@@ -47,7 +47,7 @@ describe('WeatherService', () => {
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => mockGeocodingResponse
+        json: () => Promise.resolve(mockGeocodingResponse)
       });
 
       const result = await weatherService.parseLocation('London');
@@ -73,7 +73,7 @@ describe('WeatherService', () => {
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => mockResponse
+        json: () => Promise.resolve(mockResponse)
       });
 
       const result = await weatherService.geocodeLocation('Paris');
@@ -86,7 +86,7 @@ describe('WeatherService', () => {
     it('should throw error when location not found', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => []
+        json: () => Promise.resolve([])
       });
 
       await expect(weatherService.geocodeLocation('NonexistentCity'))
@@ -139,7 +139,7 @@ describe('WeatherService', () => {
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => mockResponse
+        json: () => Promise.resolve(mockResponse)
       });
 
       const coordinates = { lat: 40.7128, lon: -74.0060 };
@@ -154,7 +154,7 @@ describe('WeatherService', () => {
     it('should include units and exclude parameters in request', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({})
+        json: () => Promise.resolve({})
       });
 
       const coordinates = { lat: 40.7128, lon: -74.0060 };
@@ -178,106 +178,5 @@ describe('WeatherService', () => {
     });
   });
 
-  describe('getWeatherOverview', () => {
-    it('should fetch weather overview successfully', async () => {
-      const mockResponse: WeatherOverviewResponse = {
-        weather_overview: 'Clear sky with mild temperatures around 15°C.'
-      };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse
-      });
-
-      const coordinates = { lat: 40.7128, lon: -74.0060 };
-      const result = await weatherService.getWeatherOverview(coordinates);
-      
-      expect(result).toEqual(mockResponse);
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('data/3.0/onecall/overview')
-      );
-    });
-
-    it('should throw error on API failure', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error'
-      });
-
-      const coordinates = { lat: 40.7128, lon: -74.0060 };
-      await expect(weatherService.getWeatherOverview(coordinates))
-        .rejects.toThrow('Weather overview API request failed: 500 Internal Server Error');
-    });
-  });
-
-  describe('getHistoricalWeather', () => {
-    it('should fetch historical weather successfully', async () => {
-      const mockResponse: HistoricalWeatherResponse = {
-        lat: 40.7128,
-        lon: -74.0060,
-        timezone: 'America/New_York',
-        timezone_offset: -18000,
-        data: [{
-          dt: 1609459200,
-          sunrise: 1609434000,
-          sunset: 1609467600,
-          temp: 12.0,
-          feels_like: 10.5,
-          pressure: 1015,
-          humidity: 70,
-          dew_point: 6.8,
-          clouds: 30,
-          visibility: 8000,
-          wind_speed: 2.5,
-          wind_deg: 200,
-          weather: [{
-            id: 801,
-            main: 'Clouds',
-            description: 'few clouds',
-            icon: '02d'
-          }]
-        }]
-      };
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse
-      });
-
-      const coordinates = { lat: 40.7128, lon: -74.0060 };
-      const result = await weatherService.getHistoricalWeather(coordinates, '2021-01-01');
-      
-      expect(result).toEqual(mockResponse);
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('data/3.0/onecall/timemachine')
-      );
-    });
-
-    it('should convert date to timestamp correctly', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({})
-      });
-
-      const coordinates = { lat: 40.7128, lon: -74.0060 };
-      await weatherService.getHistoricalWeather(coordinates, '2021-01-01');
-
-      const callUrl = (mockFetch.mock.calls[0] as string[])[0];
-      // January 1, 2021 00:00:00 UTC = 1609459200
-      expect(callUrl).toContain('dt=1609459200');
-    });
-
-    it('should throw error on API failure', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        statusText: 'Bad Request'
-      });
-
-      const coordinates = { lat: 40.7128, lon: -74.0060 };
-      await expect(weatherService.getHistoricalWeather(coordinates, '2021-01-01'))
-        .rejects.toThrow('Historical weather API request failed: 400 Bad Request');
-    });
-  });
 });

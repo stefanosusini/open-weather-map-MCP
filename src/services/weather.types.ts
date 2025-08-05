@@ -112,32 +112,6 @@ export interface OneCallResponse {
   alerts?: WeatherAlert[];
 }
 
-export interface WeatherOverviewResponse {
-  weather_overview: string;
-}
-
-export interface HistoricalWeatherResponse {
-  lat: number;
-  lon: number;
-  timezone: string;
-  timezone_offset: number;
-  data: Array<{
-    dt: number;
-    sunrise: number;
-    sunset: number;
-    temp: number;
-    feels_like: number;
-    pressure: number;
-    humidity: number;
-    dew_point: number;
-    clouds: number;
-    visibility: number;
-    wind_speed: number;
-    wind_deg: number;
-    weather: WeatherCondition[];
-  }>;
-}
-
 export interface GeocodingResponse {
   name: string;
   local_names?: Record<string, string>;
