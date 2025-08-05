@@ -57,7 +57,7 @@ export async function executeCurrentWeatherTool(
     // Add forecast information if not excluded
     if (!input.exclude?.includes('hourly') && weatherData.hourly) {
       response += `\nNext 6 hours:\n`;
-      weatherData.hourly.slice(0, 6).forEach((hour, index) => {
+      weatherData.hourly.slice(0, 6).forEach((hour) => {
         const time = new Date(hour.dt * 1000).toLocaleTimeString('en-US', { 
           hour: '2-digit', 
           minute: '2-digit' 

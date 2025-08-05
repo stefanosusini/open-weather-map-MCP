@@ -2,7 +2,8 @@
 
 ## Project Overview
 
-Integrating OpenWeatherMap API v3.0 (One Call API 3.0) into the existing MCP server to provide weather data tools.
+Integrating OpenWeatherMap API v3.0 (One Call API 3.0) into the existing MCP
+server to provide weather data tools.
 
 ## Current Status: Planning Phase ✅
 
@@ -56,8 +57,11 @@ src/
 - [ ] Update main server to register new tools
 - [x] Add geocoding support for city names (completed in WeatherService)
 
-### Phase 3: Advanced Features 🔄
+### Phase 3: Transport & Infrastructure 🔄
 
+- [ ] Add MCP_TRANSPORT and PORT to environment configuration system
+- [ ] Implement dual transport support (stdio + HTTP/SSE)
+- [ ] Update main server to support both transport modes
 - [ ] Add comprehensive error handling
 - [ ] Add input validation
 - [ ] Add rate limiting protection
@@ -73,9 +77,30 @@ src/
 
 ### Configuration Management
 
-- Environment variable: `OPENWEATHER_API_KEY`
+#### Environment Variables
+
+- `OPENWEATHER_API_KEY`: OpenWeatherMap API key (required for weather functionality)
+- `MCP_TRANSPORT`: Transport mode - `stdio` (default) or `http`
+- `PORT`: HTTP port when using HTTP transport (default: 3000)
 - Graceful fallback if API key missing
 - Optional config file support
+
+#### Transport Modes
+
+##### Stdio Transport (Default)
+
+- Use for Claude Desktop integration and standard MCP clients
+- Direct process communication via stdin/stdout
+- More secure, lower overhead
+- Usage: `npm start` or `MCP_TRANSPORT=stdio npm start`
+
+##### HTTP Transport (SSE)
+
+- Use for web applications, remote access, and debugging
+- Server-Sent Events over HTTP
+- Enables multiple clients and remote connections
+- Usage: `MCP_TRANSPORT=http PORT=3000 npm start`
+- Includes CORS support for web clients
 
 ### Error Handling Strategy
 
@@ -90,13 +115,38 @@ src/
 - HTTP client library (considering `node-fetch` or built-in `fetch`)
 - Input validation library (considering `zod`)
 
-## API Key Setup
+## Setup Instructions
 
-Users will need to:
+### API Key Setup
 
 1. Sign up at <https://openweathermap.org/api>
 2. Get free API key (1000 calls/day)
 3. Set environment variable: `OPENWEATHER_API_KEY=your_key_here`
+
+### Running the Server
+
+#### Stdio Mode (for Claude Desktop)
+
+```bash
+npm start
+# or explicitly
+MCP_TRANSPORT=stdio npm start
+```
+
+#### HTTP Mode (for web/remote access)
+
+```bash
+MCP_TRANSPORT=http PORT=3000 npm start
+```
+
+#### Testing HTTP Mode
+
+```bash
+# Test with curl
+curl -X POST http://localhost:3000/message \
+  -H "Content-Type: application/json" \
+  -d '{"method": "tools/list"}'
+```
 
 ## Notes
 
@@ -104,10 +154,14 @@ Users will need to:
 - Maintaining learning-focused approach with JSDoc comments
 - All tools will include proper input schema validation
 - Error messages will be user-friendly and actionable
-- **Weather overview tool removed**: Requires paid OpenWeatherMap subscription, not available in free tier
-- **Historical weather tool removed**: Requires paid OpenWeatherMap subscription, not available in free tier
-- **Types colocated**: Weather types moved from `src/types/weather.ts` to `src/services/weather.types.ts` for better organization
-- **Free tier limitations**: Only current weather, forecasts, and geocoding are available with free API keys
+- **Weather overview tool removed**: Requires paid OpenWeatherMap subscription,
+  not available in free tier
+- **Historical weather tool removed**: Requires paid OpenWeatherMap subscription,
+  not available in free tier
+- **Types colocated**: Weather types moved from `src/types/weather.ts` to
+  `src/services/weather.types.ts` for better organization
+- **Free tier limitations**: Only current weather, forecasts, and geocoding
+  are available with free API keys
 
 ---
 

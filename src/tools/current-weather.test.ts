@@ -13,10 +13,18 @@ import type { OneCallResponse, Coordinates } from '../services/weather.types.js'
 vi.mock('../services/weather.js');
 
 describe('executeCurrentWeatherTool', () => {
-  let mockWeatherService: vi.Mocked<WeatherService>;
+  let mockParseLocation: ReturnType<typeof vi.fn>;
+  let mockGetCurrentWeather: ReturnType<typeof vi.fn>;
+  let mockWeatherService: WeatherService;
   
   beforeEach(() => {
-    mockWeatherService = vi.mocked(new WeatherService('test-key'));
+    mockParseLocation = vi.fn();
+    mockGetCurrentWeather = vi.fn();
+    mockWeatherService = {
+      parseLocation: mockParseLocation,
+      getCurrentWeather: mockGetCurrentWeather,
+      geocodeLocation: vi.fn(),
+    } as unknown as WeatherService;
   });
 
   const mockCoordinates: Coordinates = {
@@ -107,15 +115,16 @@ describe('executeCurrentWeatherTool', () => {
         }],
         clouds: 20,
         pop: 0.1,
-        uvi: 5.0
+        uvi: 5.0,
+        summary: 'Clear sky throughout the day'
       }
     ]
   };
 
   describe('successful weather data', () => {
     it('should format basic weather information correctly', async () => {
-      mockWeatherService.parseLocation.mockResolvedValue(mockCoordinates);
-      mockWeatherService.getCurrentWeather.mockResolvedValue(mockWeatherResponse);
+      mockParseLocation.mockResolvedValue(mockCoordinates);
+      mockGetCurrentWeather.mockResolvedValue(mockWeatherResponse);
 
       const input: CurrentWeatherInput = {
         location: 'New York'
@@ -135,8 +144,8 @@ describe('executeCurrentWeatherTool', () => {
     });
 
     it('should use imperial units when specified', async () => {
-      mockWeatherService.parseLocation.mockResolvedValue(mockCoordinates);
-      mockWeatherService.getCurrentWeather.mockResolvedValue(mockWeatherResponse);
+      mockParseLocation.mockResolvedValue(mockCoordinates);
+      mockGetCurrentWeather.mockResolvedValue(mockWeatherResponse);
 
       const input: CurrentWeatherInput = {
         location: 'New York',
@@ -147,7 +156,7 @@ describe('executeCurrentWeatherTool', () => {
 
       expect(result).toContain('Temperature: 15.5°F');
       expect(result).toContain('Wind Speed: 3.5 mph');
-      expect(mockWeatherService.getCurrentWeather).toHaveBeenCalledWith(
+      expect(mockGetCurrentWeather).toHaveBeenCalledWith(
         mockCoordinates,
         'imperial',
         undefined
@@ -155,8 +164,8 @@ describe('executeCurrentWeatherTool', () => {
     });
 
     it('should include hourly forecast by default', async () => {
-      mockWeatherService.parseLocation.mockResolvedValue(mockCoordinates);
-      mockWeatherService.getCurrentWeather.mockResolvedValue(mockWeatherResponse);
+      mockParseLocation.mockResolvedValue(mockCoordinates);
+      mockGetCurrentWeather.mockResolvedValue(mockWeatherResponse);
 
       const input: CurrentWeatherInput = {
         location: 'New York'
@@ -169,8 +178,8 @@ describe('executeCurrentWeatherTool', () => {
     });
 
     it('should include daily forecast by default', async () => {
-      mockWeatherService.parseLocation.mockResolvedValue(mockCoordinates);
-      mockWeatherService.getCurrentWeather.mockResolvedValue(mockWeatherResponse);
+      mockParseLocation.mockResolvedValue(mockCoordinates);
+      mockGetCurrentWeather.mockResolvedValue(mockWeatherResponse);
 
       const input: CurrentWeatherInput = {
         location: 'New York'
@@ -183,8 +192,8 @@ describe('executeCurrentWeatherTool', () => {
     });
 
     it('should exclude sections when specified', async () => {
-      mockWeatherService.parseLocation.mockResolvedValue(mockCoordinates);
-      mockWeatherService.getCurrentWeather.mockResolvedValue(mockWeatherResponse);
+      mockParseLocation.mockResolvedValue(mockCoordinates);
+      mockGetCurrentWeather.mockResolvedValue(mockWeatherResponse);
 
       const input: CurrentWeatherInput = {
         location: 'New York',
@@ -195,7 +204,7 @@ describe('executeCurrentWeatherTool', () => {
 
       expect(result).not.toContain('Next 6 hours:');
       expect(result).not.toContain('Next 3 days:');
-      expect(mockWeatherService.getCurrentWeather).toHaveBeenCalledWith(
+      expect(mockGetCurrentWeather).toHaveBeenCalledWith(
         mockCoordinates,
         'metric',
         ['hourly', 'daily']
@@ -215,8 +224,8 @@ describe('executeCurrentWeatherTool', () => {
         }]
       };
 
-      mockWeatherService.parseLocation.mockResolvedValue(mockCoordinates);
-      mockWeatherService.getCurrentWeather.mockResolvedValue(weatherWithAlerts);
+      mockParseLocation.mockResolvedValue(mockCoordinates);
+      mockGetCurrentWeather.mockResolvedValue(weatherWithAlerts);
 
       const input: CurrentWeatherInput = {
         location: 'New York'
@@ -231,7 +240,7 @@ describe('executeCurrentWeatherTool', () => {
 
   describe('error handling', () => {
     it('should handle location parsing errors', async () => {
-      mockWeatherService.parseLocation.mockRejectedValue(new Error('Location not found: InvalidCity'));
+      mockParseLocation.mockRejectedValue(new Error('Location not found: InvalidCity'));
 
       const input: CurrentWeatherInput = {
         location: 'InvalidCity'
@@ -243,8 +252,8 @@ describe('executeCurrentWeatherTool', () => {
     });
 
     it('should handle weather API errors', async () => {
-      mockWeatherService.parseLocation.mockResolvedValue(mockCoordinates);
-      mockWeatherService.getCurrentWeather.mockRejectedValue(new Error('Weather API request failed: 401 Unauthorized'));
+      mockParseLocation.mockResolvedValue(mockCoordinates);
+      mockGetCurrentWeather.mockRejectedValue(new Error('Weather API request failed: 401 Unauthorized'));
 
       const input: CurrentWeatherInput = {
         location: 'New York'
@@ -256,7 +265,7 @@ describe('executeCurrentWeatherTool', () => {
     });
 
     it('should handle unexpected errors', async () => {
-      mockWeatherService.parseLocation.mockRejectedValue('Unexpected error');
+      mockParseLocation.mockRejectedValue('Unexpected error');
 
       const input: CurrentWeatherInput = {
         location: 'New York'
