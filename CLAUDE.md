@@ -71,6 +71,34 @@ When adding tools, ensure:
 3. Include proper input schema validation
 4. Add JSDoc comments explaining the tool's purpose
 
+## Git Workflow
+
+This project uses a **simplified Gitflow approach**:
+
+### Branch Structure
+
+- **main**: Production-ready code, direct releases with tags
+- **feature/***: New features (branch from main, merge back to main via PR)
+- **task/***: Chores, tech debt, DevX improvements (branch from main, merge back to main via PR)
+- **hotfix/***: Critical production fixes (branch from main, merge back to main)
+
+### Workflow Process
+
+1. Create feature/task branches from `main` for new work
+2. Open pull requests to merge back to `main`
+3. Tag releases directly on `main` branch
+4. Create hotfix branches from `main` for critical issues
+5. Merge hotfixes directly to `main`
+
+### Branch Naming Conventions
+
+- `feature/weather-api-integration`
+- `feature/error-handling-improvements`
+- `task/update-dependencies`
+- `task/improve-logging`
+- `task/refactor-validation`
+- `hotfix/critical-security-patch`
+
 ## Development Planning
 
 Reference the `DEVELOPMENT_PLAN.md` file for the current OpenWeatherMap API integration roadmap. This file contains:

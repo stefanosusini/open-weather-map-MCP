@@ -14,7 +14,12 @@
     "lint:fix": "eslint src --ext .ts --fix",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["mcp", "model-context-protocol", "typescript", "server"],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "typescript",
+    "server"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
@@ -22,8 +27,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
-    "@typescript-eslint/eslint-plugin": "^7.13.0",
-    "@typescript-eslint/parser": "^7.13.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.0",
     "tsx": "^4.15.0",
     "typescript": "^5.4.5",
